@@ -47,8 +47,8 @@ int main() {
     M128_HMI_Form_put("ui8x10,i32x10,f32x5", bytes, &data);
 
     M128_HMI_Form_get("ui8x10,i32x10,f32x5", bytes, &data);
-    data.ui8[0] += 1.0;
-    data.i32[0] += 1.0;
+    data.ui8[0] += 1;
+    data.i32[0] += 1;
     data.f32[0] += 1.0;
 
     M128_HMI_Form_put("ui8x10,i32x10,f32x5", bytes, &data);
