@@ -41,9 +41,6 @@ end
 type = 8; bytes = 4*5; % 5 個 f32
 REMO_put(port, type, bytes, f32_data);
 
-% 取得字串
-s5 = fscanf(port,'%s')
-
 % 接收矩陣資料
 f32_data_re = REMO_get(port, type, bytes);
 
