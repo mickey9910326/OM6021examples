@@ -33,9 +33,9 @@ int main() {
     // This is the only supported floating point format in AVR-GCC
 
     uint16_t ui16_data[5] = { 1, 2, 3, 4, 65535 };
-    int32_t  i32_data[10]  = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+    int32_t  i32_data[8]  = { 0, 1, 2, 3, 4, 5, 6, 7};
     char  ui16_bytes = 5*sizeof(uint16_t);
-    char  i32_bytes  = 5*sizeof(uint16_t);
+    char  i32_bytes  = 8*sizeof(int32_t);
 
     printf("M128 Start -------------!\n");
     printf("Plz say something to M128\n");
@@ -43,7 +43,7 @@ int main() {
 
     M128_HMI_put(f32_bytes , HMI_TYPE_F32 , f32_data ); // send f32  array data
     M128_HMI_put(ui16_bytes, HMI_TYPE_UI16, ui16_data); // send ui16 array data
-    M128_HMI_put(i32_bytes , HMI_TYPE_UI16, i32_data ); // send i32  array data
+    M128_HMI_put(i32_bytes , HMI_TYPE_I32 , i32_data ); // send i32  array data
 
     printf("M128 is ready to receive data\n");
 

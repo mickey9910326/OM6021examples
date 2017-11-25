@@ -6,7 +6,7 @@
  *
  * Sending struct data by using HMI function From M128. Can catch
  * the struct data by use ASA_HMI_Data_Agent or Matlab. Matlab
- * example is "exp1_1.m" in "matlab" folder.
+ * example is "exp1_2.m" in "matlab" folder.
  */
 
 #include "ASA_Lib.h"
