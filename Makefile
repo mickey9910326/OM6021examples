@@ -32,7 +32,9 @@ LIBS = -lm -lprintf_flt -lscanf_flt
 
 ## Objects that must be built in order to link
 # LIBSRC = $(wildcard revlib/*.c)
-# LIBOBJS = $(patsubst %.c,%.o,$(LIBSRC))
+# LIBSRC = DAC00\ASA_Lib_DAC00.c
+LIBSRC += $(wildcard lib/SDC00/*.c)
+LIBOBJS = $(patsubst %.c,%.o,$(LIBSRC))
 
 ## Objects explicitly added by the user
 LINKONLYLIBOBJS = ASA_Lib.o
