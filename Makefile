@@ -34,6 +34,7 @@ LIBS = -lm -lprintf_flt -lscanf_flt
 # LIBSRC = $(wildcard revlib/*.c)
 # LIBSRC = DAC00\ASA_Lib_DAC00.c
 LIBSRC += $(wildcard lib/SDC00/*.c)
+LIBSRC += $(wildcard lib/DAC00/*.c)
 LIBOBJS = $(patsubst %.c,%.o,$(LIBSRC))
 
 ## Objects explicitly added by the user

@@ -1,4 +1,5 @@
 #include "ASA_Lib.h"
+#include "lib/DAC00/ASA_Lib_DAC00.h"
 
 int main() {
     ASA_M128_set();
@@ -8,8 +9,8 @@ int main() {
     int data = 20;
 
 	ASA_DAC00_set(1, 200, 0x80, 7, 0x01); // 單通道非同步模式
-	ASA_DAC00_set(1, 200, 0x40, 6, 0x00); // 同步輸出0
-	ASA_DAC00_set(1, 200, 0x30, 4, 0x00); // 輸出通道0 S1S2
+	ASA_DAC00_set(1, 200, 0x40, 6, 0x00); // 同步輸出1
+	ASA_DAC00_set(1, 200, 0x30, 4, 0x00); // 輸出通道1 S1S2
 
     while (1) {
         printf("input data:");
