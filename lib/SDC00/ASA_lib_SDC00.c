@@ -1,13 +1,15 @@
-//Author    : Name
-//Last Edit : Name YYYY/MM/DD
+//Author    : Ye cheng-wei
+//Last Edit : Name 2018/02/23
 //ASA Lib Gen2
 
 #include "ASA_Core_M128.h"
-#include "ff.h"
+#include <inttypes.h>
 #include <avr\io.h>
 #include <avr\interrupt.h>
 #include <stdio.h>
 #include <util\delay.h>
+#include "ff.h"
+
 //#define _DEBUG_INFO
 
 /**** Internal Definitions ****/
@@ -36,7 +38,8 @@
 #define ARSDC_WRITE_SETTING		12
 #define ARSDC_NO_DATA_TO_READ	13
 #define ARSDC_DATA_NUM_ENOUGH	14
-#define ARSDC_RENAME_ERR		15			// ���w�ɮ׽s�����s�b���ɦW�w�s�b���୫�ƨϥ�
+// Specific file id not exist or not available
+#define ARSDC_RENAME_ERR		15
 
 /**** SDC00 LSByte definition ****/
 // Register address
@@ -68,7 +71,7 @@
 int RTC_init(void);
 
 /**** Global Variables ****/
-FATFS FatFs[FF_VOLUMES];    // File system object for each logical drive
+FATFS FatFs[FF_VOLUMES];	// File system object for each logical drive
 FIL FileObj;				// File object
 DIR DirObj;					// Directory object
 
@@ -79,8 +82,8 @@ char SDC_State = 0;
 char is_file_extcheck = 0;
 char ASA_SDC00_ID = 44;		// Have SDC:0~7, No SDC:44
 static char SDC_Init_Success_Flag = 0;
-static char ASA_RTC00_ID = 44;		// Have RTC:0~7, No RTC:44
-static char RTC_Init_Success_Flag = 0;
+//static char ASA_RTC00_ID = 44;		// Have RTC:0~7, No RTC:44
+//static char RTC_Init_Success_Flag = 0;
 unsigned long EndPointOfFile = 0;
 unsigned int LastFileIndex = 0;
 
@@ -131,51 +134,15 @@ void ASA_SDC00_Deselect(void)
 	PORTB |=  0b00000000;
 }
 
-//char CheckSysInfoAndReadLastFileIndex(void)
-//{
-	//char SysInfoIDTemp[2];
-	//unsigned int BytesTemp;
-	//if( f_open(&FileObj, "ASYSINFO.ASI", FA_OPEN_EXISTING | FA_READ) != FR_OK )	// �}��Ū�t����
-	//{
-		//// �Y�t���ɤ��s�b�A�h�۰ʲ��ͤ@�ӷs���t����
-		//if( f_open(&FileObj, "ASYSINFO.ASI", FA_CREATE_ALWAYS) != FR_OK )
-		//return ARSDC_SDC_STATE_ERR;
-		//LastFileIndex = 3;
-		//SysInfoIDTemp[1] = LastFileIndex/256;
-		//SysInfoIDTemp[0] = LastFileIndex%256;
-		//if( f_open(&FileObj, "ASYSINFO.ASI", FA_WRITE) )		// �}�ɼg�t����
-		//return ARSDC_SDC_STATE_ERR;
-		//if( f_write(&FileObj, SysInfoIDTemp, 2, &BytesTemp) )		// �ק��t���ɤw�άy���Ǹ�
-		//return ARSDC_SDC_STATE_ERR;
-		//f_close(&FileObj);
-		//if( f_chmod("ASYSINFO.ASI", 0x07, 0xFF) )			// �]�w��Ū
-		//return ARSDC_SDC_STATE_ERR;
-	//}
-	//else
-	//{
-		//FRESULT res = f_read(&FileObj, SysInfoIDTemp, 2, &BytesTemp);
-		//if( res != FR_OK ) {
-			//printf("Read ASYSINFO.ASI failed, error code <%d> \n", res);
-			//return ARSDC_SDC_STATE_ERR;
-		//}
-		//
-		//f_close(&FileObj);
-		//LastFileIndex = (unsigned int)SysInfoIDTemp[1]*256 + SysInfoIDTemp[0];
-		//printf("LastFileIndex  = %d\n", LastFileIndex);
-	//}
-	//return ARSDC_OK;
-//}
-
 char ASA_SDC00_Init(char ASA_ID)
 {
 	char res;	// 0:All OK, 1:SD Not OK, 2:RTC Not OK, 3:All Not OK.
-	char i;
 
 	// TODO: Add RTC Library and enable these code
-	//// ���ˬd�O�_��RTC00�i�Ѱt�X���Ѯɶ�
-	//if( RTC_Init_Success_Flag == 0 )			// �Ĥ@���Q�I�s�]�w�ɶi��RTC���l��
+	//// Check ther is a available RTC00 module to supply current time
+	//if( RTC_Init_Success_Flag == 0 )			// Initialize at first called
 	//{
-	//for(i=0; i<8; i++)						// �]�@��for loop�۰ʰ���RTC ID�s��
+	//for(i=0; i<8; i++)						// Run a loop (0~7) autodetect RTC00 module id
 	//{
 	//ASA_ID_set(i);
 	//if( RTC_init() == 1 )
@@ -215,15 +182,15 @@ char ASA_SDC00_Init(char ASA_ID)
 	}
 #endif
 
-	if( f_chdir(ASA_DATA_Dir) != FR_OK )				// Trying goto ASA default directory
+	if( f_chdir(ASA_DATA_Dir) != FR_OK )			// Trying goto ASA default directory
 	{
-		f_mkdir(ASA_DATA_Dir);							// If ASA Default directory don't exist, then create one
-		if( f_chdir(ASA_DATA_Dir) != FR_OK ) {			// Goto ASA Default directory again
+		f_mkdir(ASA_DATA_Dir);						// If ASA Default directory don't exist, then create one
+		if( f_chdir(ASA_DATA_Dir) != FR_OK ) {		// Goto ASA Default directory again
 			res += 1;
 		}
 		else {
 			ASA_SDC00_ID = ASA_ID;
-			ASA_DATA_Dir[0] = '\0';						// While successful goto default dir, reset ASA_DATA_Dir
+			ASA_DATA_Dir[0] = '\0';					// While successful goto default dir, reset ASA_DATA_Dir
 		}
 	}
 	else
@@ -231,7 +198,7 @@ char ASA_SDC00_Init(char ASA_ID)
 		f_chdir("\\");
 		f_chdir(ASA_DATA_Dir);
 		ASA_SDC00_ID = ASA_ID;
-		ASA_DATA_Dir[0] = '\0';						// ���L�h���N�w�]���|�]����
+		ASA_DATA_Dir[0] = '\0';						// go to target folder and set default path to root
 	}
 
 	ASA_SDC00_Deselect();
@@ -243,8 +210,7 @@ char ASA_SDC00_Init(char ASA_ID)
 
 char ASA_SDC00_set(char ASA_ID, char LSByte, char Mask, char shift, char Data)
 {
-	char set_Data = 0, SysInfoIDTemp[2];
-	unsigned int BytesTemp;
+	char set_Data = 0;
 	if( SDC_Init_Success_Flag == 0 )	// Initialize at first call
 	{
 		if( ASA_SDC00_Init(ASA_ID) == 0 )
@@ -284,7 +250,7 @@ char ASA_SDC00_set(char ASA_ID, char LSByte, char Mask, char shift, char Data)
 				SDC_State = 1;
 				break;
 
-			case SDC_FCF_OVERWRITE:		// �Y�]���}�ɻ\�g
+			case SDC_FCF_OVERWRITE:		// if there is [Open file with override] mode
 				// Check there is a Closed file state
 				if(SDC_State != 0) {
 #ifdef _DEBUG_INFO
@@ -292,13 +258,13 @@ char ASA_SDC00_set(char ASA_ID, char LSByte, char Mask, char shift, char Data)
 #endif
 					return ARSDC_OPEN_FILE_ERR;
 				}
-				if( f_open(&FileObj, FileName, FA_CREATE_ALWAYS) != FR_OK )	// �j���}�s�ɮ׻\�g
+				if( f_open(&FileObj, FileName, FA_CREATE_ALWAYS) != FR_OK )	// force create new file to override
 					return ARSDC_SDC_STATE_ERR;
-				if( f_open(&FileObj, FileName, FA_WRITE) != FR_OK )			// �}�ɳ]���g
+				if( f_open(&FileObj, FileName, FA_WRITE) != FR_OK )			// open file and set WRITE mode
 					return ARSDC_SDC_STATE_ERR;
 				SDC_State = 2;
 				break;
-			case SDC_FCF_CONTINUEWRITE:	// �}�ɤ����g/�Y�ɮ׽s���]��0�h�}�s�ɮ�
+			case SDC_FCF_CONTINUEWRITE:	// if there is [Open file with append] mode
 				// Check there is a Closed file state
 				if(SDC_State != 0) {
 #ifdef _DEBUG_INFO
@@ -306,18 +272,18 @@ char ASA_SDC00_set(char ASA_ID, char LSByte, char Mask, char shift, char Data)
 #endif
 					return ARSDC_OPEN_FILE_ERR;
 				}
-				if( f_open(&FileObj, FileName, FA_WRITE) != FR_OK )			// �}�ɳ]���g
+				if( f_open(&FileObj, FileName, FA_WRITE) != FR_OK )			// open file and set WRITE mode
 					return ARSDC_SDC_STATE_ERR;
-				if( f_lseek(&FileObj, f_size(&FileObj)) != FR_OK )			// �N���Ʀ��m���в����ɧ����g
+				if( f_lseek(&FileObj, f_size(&FileObj)) != FR_OK )			// set data cursor to EOF to append data
 					return ARSDC_SDC_STATE_ERR;
 				SDC_State = 2;
 				break;
 
-			default:	// �P�ɳ]�w���ӥH�W�X�СA�^�����~
+			default:	// Multiple command, command error
 				return ARSDC_MUTI_SET_ERR;
 		}
 		break;
-		default:	// LSByte���~�A���b�]�w�Ȧs���C��LSB200~200���d����
+		default:	// LSByte error, not list on the register table
 		return ARSDC_LSBYTE_ERR;
 		break;
 
@@ -331,10 +297,9 @@ char ASA_SDC00_set(char ASA_ID, char LSByte, char Mask, char shift, char Data)
 char ASA_SDC00_put(char ASA_ID, char LSByte, char Bytes, void *Data_p)
 {
 	FRESULT res;
-	char FileNameNew[13];
-	unsigned int WriteBytes, i;
+	unsigned int WriteBytes;
 
-	if( LSByte == 200 )						// �]�w�ɮױ����X�мȦs��
+	if( LSByte == 200 )					// set File control flag register
 		return ASA_SDC00_set(ASA_ID, LSByte, 0xFF, 0x00, (char)((char*)Data_p)[0]);
 
 	if( SDC_Init_Success_Flag == 0 )	// Initialize at first call
@@ -415,7 +380,8 @@ char ASA_SDC00_put(char ASA_ID, char LSByte, char Bytes, void *Data_p)
 					}
 				}
 #endif
-				if(  res = f_write(&FileObj, Data_p, Bytes, &WriteBytes)) {
+				res = f_write(&FileObj, Data_p, Bytes, &WriteBytes);
+				if( res ) {
 #ifdef _DEBUG_INFO
 					printf("<FAT Write> write fail errorcode: %d\n", res);
 #endif
@@ -472,10 +438,8 @@ char ASA_SDC00_put(char ASA_ID, char LSByte, char Bytes, void *Data_p)
 char ASA_SDC00_get(char ASA_ID, char LSByte, char Bytes, void *Data_p)
 {
 	unsigned int ReadBytes;
-	int obj_index = 0;
 	char* p_data = Data_p;
-	FRESULT fr;
-	FILINFO fno;
+	static FILINFO fno;
 
 	if( SDC_Init_Success_Flag == 0 )			// Check there is Initialized
 		return ARSDC_SDC_STATE_ERR;
@@ -498,19 +462,20 @@ char ASA_SDC00_get(char ASA_ID, char LSByte, char Bytes, void *Data_p)
 		case 1:	// If current is at Opened file mode (Read Only)
 
 			// Check there is same file that was Checked
-			if(!is_file_extcheck)
+			if(!is_file_extcheck) {
 				// Fetch file information first
 				if(check_info(FileName, &fno) != FR_OK)
 					return ARSDC_OPEN_FILE_ERR;
 				else
 					// Mark that the file was Checked
 					is_file_extcheck = 1;
+			}
 
 			switch(LSByte) {
 			case LSBYTE_DATA_SWAP_BUF:
 				if(f_read(&FileObj, p_data, Bytes, &ReadBytes) != FR_OK)
 					return ARSDC_SDC_STATE_ERR;
-				if(ReadBytes < Bytes) {												// While read bytes less than user setting,
+				if(ReadBytes < Bytes) {								// While read bytes less than user setting,
 					((char*) p_data)[(int)Bytes-1] = ReadBytes; 	// then record received bytes at last byte in buffer
 					return ARSDC_DATA_NUM_ENOUGH;
 				}

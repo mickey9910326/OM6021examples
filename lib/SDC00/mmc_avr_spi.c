@@ -99,7 +99,7 @@ void power_on (void)
 
 	/* Enable SPI module in SPI mode 0 */
 
-	// Pin Initial state
+	// Pin Initial state 
 	// Hi: MOSI & \SS
 	// Lo: MISO & SCK
 
@@ -118,7 +118,7 @@ void power_on (void)
 static
 void power_off (void)
 {
-	// Don't need to power off for ASA M128
+	// Don't need to power off for ASA M128 
 	return;
 }
 
@@ -368,9 +368,9 @@ DSTATUS mmc_disk_initialize (void)
 			for (n = 0; n < 4; n++) ocr[n] = xchg_spi(0xFF);	/* Get trailing return value of R7 resp */
 			if (ocr[2] == 0x01 && ocr[3] == 0xAA) {				/* The card can work at vdd range of 2.7-3.6V */
 				while (Timer1 && send_cmd(ACMD41, 1UL << 30)) { /* Wait for leaving idle state (ACMD41 with HCS bit) */
-					if(Timer1>0) Timer1--;
+					if(Timer1>0) Timer1--;	
 				}
-
+					
 				if (Timer1 && send_cmd(CMD58, 0) == 0) {		/* Check CCS bit in the OCR */
 					for (n = 0; n < 4; n++) ocr[n] = xchg_spi(0xFF);
 					ty = (ocr[0] & 0x40) ? CT_SD2 | CT_BLOCK : CT_SD2;	/* Check if the card is SDv2 */
@@ -686,3 +686,4 @@ void mmc_disk_timerproc (void)
 	}
 	Stat = s;				/* Update MMC status */
 }
+
