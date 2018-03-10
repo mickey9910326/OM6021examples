@@ -8,13 +8,15 @@
 
 #include "ASA_Lib.h"
 #include "lib\SDC00\ASA_lib_SDC00.h"
+#include <string.h>
 
-void main(void) {
+int main(void) {
 
     ASA_M128_set();
+    printf("Start --------!");
 
     /* 建立set函數所需之參數變數 */
-    unsigned char ASA_ID = 4, Mask = 0xFF, Shift = 0, Setting = 0xFF;
+    unsigned char ASA_ID = 1, Mask = 0xFF, Shift = 0, Setting = 0xFF;
 
     // 宣告 與SDC00交換資料的資料陣列緩衝區
     uint8_t swap_buffer[64];
@@ -38,13 +40,13 @@ void main(void) {
     if (check != 0) {  // 檢查回傳值做後續處理
         // 開檔失敗，回傳錯誤資訊(錯誤碼請查閱規格書)
         printf("Debug point 1, error code <%d>\n", check);
-        return;
+        return 0;
     }
     /*** 開啟檔案完成 ***/
 
 
     printf("[Start] Write data to file with overlap(or new file) mode !!\n");
-    for (int i = 1; i<50; i++) {
+    for (uint8_t i = 1; i<50; i++) {
         // 寫入旗標組合
         sprintf(swap_buffer, "There is a string from M128 %d\r\n", i);
 
@@ -66,9 +68,9 @@ void main(void) {
     check = ASA_SDC00_set(ASA_ID, 200, Mask, Shift, 0x00);
     if (check != 0) {  // 檢查回傳值做後續處理
         printf("Debug point 2, error code <%d>\n", check);
-        return;
+        return 0;
     }
     /*** 關閉檔案完成 ***/
 
-    return;
+    return 0;
 }

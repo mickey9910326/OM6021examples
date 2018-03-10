@@ -100,6 +100,7 @@ char ASA_ID_check(unsigned char ASA_ID)
 
 inline char ASA_ID_set(unsigned char ASA_ID)
 {
+    DDRB |= 0b11100000;
 	if(ASA_ID>=0 && ASA_ID<=7)
 	{
 		unsigned char ASA_ID_temp;
