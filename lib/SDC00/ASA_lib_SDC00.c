@@ -87,6 +87,8 @@ static char SDC_Init_Success_Flag = 0;
 unsigned long EndPointOfFile = 0;
 unsigned int LastFileIndex = 0;
 
+char ASA_ID_set(unsigned char ASA_ID);
+
 //Functions
 FRESULT check_info(char* file_name, FILINFO* p_fno);
 char ASA_ID_check(unsigned char ASA_ID)
