@@ -17,7 +17,6 @@ int main() {
     int data = 20;
 
 	ASA_DAC00_set(ID_DAC, 200, 0x80, 7, 0x01); // 單通道非同步模式
-	ASA_DAC00_set(ID_DAC, 200, 0x40, 6, 0x00); // 同步輸出1
 	ASA_DAC00_set(ID_DAC, 200, 0x30, 4, 0x00); // 輸出通道1 S1S2
 
     while (1) {
